@@ -1,0 +1,36 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB         # Maximum size of a single uploaded file
+      max-request-size: 100MB      # Maximum total size of a multipart/form-data request
+
+  ai:
+    model:
+      embedding: openai            # Default provider for text embeddings (Docker Model Runner)
+      chat: ollama                 # Default provider for chat models
+
+    openai:
+      base-url: http://localhost:12434/engines  # Custom local endpoint for OpenAI-compatible API (Docker Model Runner)
+      api-key: nokeyrequired                    # Dummy API key for local/dev mode
+      init:
+        pull-model-strategy: when_missing       # Pull model only if not already present (good for dev environments)
+      embedding:
+        options:
+          model: ai/mxbai-embed-large           # High-quality embedding model; ensure it matches vectorstore dimensions
+
+    ollama:
+      base-url: http://localhost:11434          # Ollama service endpoint for local LLMs
+      init:
+        pull-model-strategy: when_missing       # Avoid unnecessary model downloads
+      chat:
+        options:
+          model: llava                          # Multimodal model, supports image+text input
+
+    vectorstore:
+      elasticsearch:
+        index-name: alfresco                    # Name of the Elasticsearch index to store vector embeddings
+        initialize-schema: true                 # Automatically create index if it doesn't exist
+        dimensions: 1024                        # Must match embedding vector dimensions exactly
+
+  elasticsearch:
+    uris: http://localhost:9200                 # Elasticsearch service endpoint
