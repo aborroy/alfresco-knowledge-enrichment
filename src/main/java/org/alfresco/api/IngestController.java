@@ -14,17 +14,17 @@ public class IngestController {
     private final RagIngestService ragIngestService;
 
     /**
-     * Ingests the given PDF file and associates it with the provided UUID.
+     * Ingests the given Markdown file and associates it with the provided UUID.
      *
      * @param uuid Identifier used for grouping or tracking the document.
-     * @param file Must be a PDF file (validated by MIME type).
+     * @param file Must be a Markdown file (validated by MIME type).
      * @return HTTP 202 Accepted if ingestion is successful.
      */
     @PostMapping("/ingest")
     public ResponseEntity<String> ingest(@RequestParam String uuid,
                                          @RequestParam MultipartFile file) {
-        if (!"application/pdf".equalsIgnoreCase(file.getContentType())) {
-            return ResponseEntity.badRequest().body("Only PDF files are supported.");
+        if (!"text/markdown".equalsIgnoreCase(file.getContentType())) {
+            return ResponseEntity.badRequest().body("Only Markdown files are supported.");
         }
 
         ragIngestService.process(uuid, file);

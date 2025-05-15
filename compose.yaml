@@ -9,9 +9,10 @@ services:
     environment:
       # AI service configuration
       - SPRING_AI_OPENAI_BASE_URL=http://host.docker.internal:12434/engines
-      - SPRING_AI_OLLAMA_BASE_URL=http://host.docker.internal:11434
       # Elasticsearch connection (using service name instead of localhost)
       - SPRING_ELASTICSEARCH_URIS=http://elasticsearch:9200
+      # PDF2Markdown connection
+      - PDF2MARKDOWN_URL=http://192.168.1.142:8080/convert
       # Configure log level for troubleshooting
       - LOGGING_LEVEL_ROOT=INFO
     depends_on:
