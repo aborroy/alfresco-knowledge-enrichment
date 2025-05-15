@@ -13,6 +13,25 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * {@code RagQueryService} handles semantic question answering using
+ * a Retrieval-Augmented Generation (RAG) approach.
+ *
+ * <p>This service combines a vector store with a large language model (LLM) to answer
+ * user questions using contextually relevant documents. It performs the following steps:
+ * <ul>
+ *   <li>Performs a semantic similarity search on the vector store based on the user query.</li>
+ *   <li>Constructs a prompt using a predefined template that includes the retrieved context.</li>
+ *   <li>Sends the prompt to the underlying LLM for generating a response.</li>
+ *   <li>Returns both the generated answer and the documents used as context.</li>
+ * </ul>
+ *
+ * <p>This service is typically called by the controller layer to serve chat or Q&A interactions
+ * based on a knowledge base indexed previously using {@link RagIngestService}.
+ *
+ * <p>Designed for AI-powered assistants and smart search systems.
+ *
+ */
 @Service
 @RequiredArgsConstructor
 public class RagQueryService {
@@ -20,6 +39,10 @@ public class RagQueryService {
     private final ChatModel chatModel;
     private final VectorStore vectorStore;
 
+    /**
+     * A reusable prompt template that instructs the model to answer using only the provided context.
+     * If the context is insufficient, it instructs the model to respond with "I don't know."
+     */
     private static final PromptTemplate PROMPT_TEMPLATE = new PromptTemplate("""
         You are an expert assistant. Use the following context to answer the user's question.
         If the context does not contain the answer, reply with "I don't know."
@@ -32,10 +55,19 @@ public class RagQueryService {
         """);
 
     /**
-     * Answers a user query using LLM + vector store context.
+     * Answers a user query by performing semantic search against the vector store
+     * and generating a response using a large language model (LLM).
      *
-     * @param userInput The user’s question.
-     * @return A response from the model and the documents used as context.
+     * <p>The logic follows the standard RAG pattern:
+     * <ol>
+     *   <li>Perform a similarity search using the user query.</li>
+     *   <li>Concatenate the resulting {@link Document} texts as prompt context.</li>
+     *   <li>Invoke the LLM with a prompt composed from the template and the input.</li>
+     *   <li>Return the model's response along with the documents used for context.</li>
+     * </ol>
+     *
+     * @param userInput The user’s natural-language question.
+     * @return A {@link ChatController.ChatResponse} containing the model's answer and supporting context documents.
      */
     public ChatController.ChatResponse chat(String userInput) {
         // 1. Search for relevant context documents
