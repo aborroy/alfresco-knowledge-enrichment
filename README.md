@@ -27,6 +27,7 @@ Requirements
 * Docker Desktop ≥ 4.24 (20 GiB RAM)
 * Docker Compose v2
 * [Docker Model Runner](https://docs.docker.com/model-runner/)
+  - Make sure that "Enable host-side TCP support" is enabled in Docker Desktop, and that the "port" is set to `12434`
 * Maven 3.x
 * Java 21
 
