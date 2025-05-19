@@ -21,7 +21,7 @@
   <!-- Project properties -->
   <properties>
     <java.version>21</java.version>
-    <spring-ai.version>1.0.0-RC1</spring-ai.version>
+    <spring-ai.version>1.0.0</spring-ai.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
   </properties>

@@ -1,7 +1,7 @@
 package org.alfresco.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.markdown.MarkdownDocumentReader;
 import org.springframework.ai.reader.markdown.config.MarkdownDocumentReaderConfig;
@@ -15,9 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * {@code RagIngestService} is responsible for ingesting Markdown files into a vector database
@@ -39,7 +37,7 @@ import java.util.Map;
  * <p>Intended for use in AI-powered content enrichment or semantic search applications.
  *
  */
-@Log4j2
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RagIngestService {
@@ -68,7 +66,7 @@ public class RagIngestService {
                     .peek(doc -> addMetadata(doc, uuid, filename))
                     .toList();
 
-            vectorStore.add(fixChunkSize(chunks));
+            vectorStore.add(chunks);
 
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to ingest Markdown: " + filename, e);
@@ -129,42 +127,4 @@ public class RagIngestService {
         doc.getMetadata().put("name", name);
     }
 
-    /**
-     * Temporary workaround to split oversized Document chunks into parts
-     * of at most 512 characters, but only if the original text exceeds 1024 characters.
-     *
-     * <p>This prevents ingestion failures or HTTP 500 errors when using Spring AI,
-     * which currently lacks native Markdown chunking logic. All metadata from
-     * the original Document is preserved.
-     *
-     * <p>Once Spring AI supports Markdown chunking directly, this method should be removed
-     * and replaced with:
-     * <pre>{@code
-     * vectorStore.add(chunks);
-     * }</pre>
-     *
-     * @param chunks List of original Document chunks
-     * @return List of Documents, each with text length ≤ 1024 characters
-     */
-    private List<Document> fixChunkSize(List<Document> chunks) {
-        List<Document> updatedChunks = new ArrayList<>();
-
-        for (Document doc : chunks) {
-            String content = doc.getText();
-            Map<String, Object> metadata = doc.getMetadata();
-
-            if (content.length() <= 1024) {
-                updatedChunks.add(doc);
-            } else {
-                int start = 0;
-                while (start < content.length()) {
-                    int end = Math.min(start + 500, content.length());
-                    updatedChunks.add(new Document(content.substring(start, end), metadata));
-                    start = end;
-                }
-            }
-        }
-
-        return updatedChunks;
-    }
 }
