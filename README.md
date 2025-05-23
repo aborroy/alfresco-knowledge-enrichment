@@ -61,9 +61,10 @@ docker compose up --build
 Returns **HTTP 202** when the file has been chunked, captioned and stored.
 
 ```bash
-curl -F uuid=demo \
-     -F file=@contract.md \
-     http://localhost:8080/api/ingest
+curl --request POST \
+  --url http://localhost:8080/api/ingest \
+  --form "file=@example.md" \
+  --form uuid=1010-10238-123
 ```
 
 ### `POST /api/chat`

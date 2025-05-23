@@ -23,8 +23,17 @@ public class IngestController {
     @PostMapping("/ingest")
     public ResponseEntity<String> ingest(@RequestParam String uuid,
                                          @RequestParam MultipartFile file) {
-        if (!"text/markdown".equalsIgnoreCase(file.getContentType())) {
-            return ResponseEntity.badRequest().body("Only Markdown files are supported.");
+
+        String contentType = file.getContentType();
+        String filename = file.getOriginalFilename();
+
+        boolean isMarkdown = "text/markdown".equalsIgnoreCase(contentType) ||
+                "text/x-markdown".equalsIgnoreCase(contentType) ||
+                (filename != null && filename.toLowerCase().endsWith(".md"));
+
+        if (!isMarkdown) {
+            return ResponseEntity.badRequest().body(
+                    "File " + filename + " + mimetype is " + contentType + ", only Markdown files are supported.");
         }
 
         ragIngestService.process(uuid, file);
